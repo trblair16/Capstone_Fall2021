@@ -1,0 +1,56 @@
+@page "/login"
+@inject AuthService AuthSvc
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>Sign In — Camp Clot Not</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudPaper Class="pa-6" Elevation="3">
+        <MudText Typo="Typo.h4" Align="Align.Center" Class="mb-4">Camp Clot Not</MudText>
+        <MudText Typo="Typo.h6" Align="Align.Center" Class="mb-6">Sign In</MudText>
+
+        <EditForm Model="_model" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <MudTextField @bind-Value="_model.Email" Label="Email" InputType="InputType.Email"
+                          Variant="Variant.Outlined" Class="mb-3" />
+            <MudTextField @bind-Value="_model.Password" Label="Password" InputType="InputType.Password"
+                          Variant="Variant.Outlined" Class="mb-4" />
+
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
+                       FullWidth="true" Disabled="_loading">
+                @(_loading ? "Signing in..." : "Sign In")
+            </MudButton>
+        </EditForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private readonly LoginModel _model = new();
+    private string? _error;
+    private bool _loading;
+
+    private async Task HandleLogin()
+    {
+        _loading = true;
+        _error = null;
+        var ctx = HttpContextAccessor.HttpContext!;
+        var ok = await AuthSvc.LoginAsync(ctx, _model.Email, _model.Password);
+        if (ok)
+            Nav.NavigateTo("/", forceLoad: true);
+        else
+            _error = "Invalid email or password.";
+        _loading = false;
+    }
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+}
