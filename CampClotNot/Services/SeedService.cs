@@ -57,6 +57,14 @@ public class SeedService(IDbContextFactory<AppDbContext> factory, IConfiguration
 
         // Events
         public static readonly Guid EventCcn2026 = new("00000009-0009-0009-0009-000000000001");
+
+        // Groups (CCN 2026 — placeholder names until cabin groupings confirmed)
+        public static readonly Guid Group1 = new("0000000a-000a-000a-000a-000000000001");
+        public static readonly Guid Group2 = new("0000000a-000a-000a-000a-000000000002");
+        public static readonly Guid Group3 = new("0000000a-000a-000a-000a-000000000003");
+        public static readonly Guid Group4 = new("0000000a-000a-000a-000a-000000000004");
+        public static readonly Guid Group5 = new("0000000a-000a-000a-000a-000000000005");
+        public static readonly Guid Group6 = new("0000000a-000a-000a-000a-000000000006");
     }
 
     public async Task SeedAsync()
@@ -73,6 +81,7 @@ public class SeedService(IDbContextFactory<AppDbContext> factory, IConfiguration
         await SeedAwardTypesAsync(db);
         await SeedEventAsync(db);
         await SeedEventCapabilitiesAsync(db);
+        await SeedGroupsAsync(db);
         await SeedAdminUserAsync(db);
     }
 
@@ -237,6 +246,24 @@ public class SeedService(IDbContextFactory<AppDbContext> factory, IConfiguration
         }));
         await db.SaveChangesAsync();
         logger.LogInformation("Seeded EventCapabilities for CCN 2026.");
+    }
+
+    private async Task SeedGroupsAsync(AppDbContext db)
+    {
+        if (await db.Groups.AnyAsync()) return;
+
+        // Placeholder groups — update Name, ShortName, Color, CabinDisplayName
+        // once cabin groupings are confirmed with Katelyn/Vicki
+        db.Groups.AddRange(
+            new Group { GroupId = Id.Group1, EventId = Id.EventCcn2026, Name = "Group 1", ShortName = "G1", Color = "#E74C3C" },
+            new Group { GroupId = Id.Group2, EventId = Id.EventCcn2026, Name = "Group 2", ShortName = "G2", Color = "#3498DB" },
+            new Group { GroupId = Id.Group3, EventId = Id.EventCcn2026, Name = "Group 3", ShortName = "G3", Color = "#2ECC71" },
+            new Group { GroupId = Id.Group4, EventId = Id.EventCcn2026, Name = "Group 4", ShortName = "G4", Color = "#F39C12" },
+            new Group { GroupId = Id.Group5, EventId = Id.EventCcn2026, Name = "Group 5", ShortName = "G5", Color = "#9B59B6" },
+            new Group { GroupId = Id.Group6, EventId = Id.EventCcn2026, Name = "Group 6", ShortName = "G6", Color = "#1ABC9C" }
+        );
+        await db.SaveChangesAsync();
+        logger.LogInformation("Seeded 6 placeholder groups for CCN 2026.");
     }
 
     private async Task SeedAdminUserAsync(AppDbContext db)
