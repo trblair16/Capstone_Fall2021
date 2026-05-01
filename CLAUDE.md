@@ -10,7 +10,7 @@ A Blazor Server (.NET 8) web app for Camp Clot Not (CCN), a camp for kids with b
 
 ## Current State (as of 2026-04-30)
 
-**Active branch:** `dev` (v0.1.0 shipped — starting v0.2.0)  
+**Active branch:** `feature/2-competition-core`  
 **Released:** v0.1.0 — Foundation (tagged on main)
 
 **v0.1.0 — Done:**
