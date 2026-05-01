@@ -250,20 +250,41 @@ public class SeedService(IDbContextFactory<AppDbContext> factory, IConfiguration
 
     private async Task SeedGroupsAsync(AppDbContext db)
     {
-        if (await db.Groups.AnyAsync()) return;
+        // Upsert by stable ID so name/color updates here apply on next app start.
+        // Update this table when real cabin groupings are confirmed with Katelyn/Vicki/Amanda.
+        var defs = new[]
+        {
+            new { Id = Id.Group1, Name = "Mario Group",       ShortName = "MA", Color = "#E74C3C" },
+            new { Id = Id.Group2, Name = "Luigi Group",       ShortName = "LU", Color = "#27AE60" },
+            new { Id = Id.Group3, Name = "Yoshi Group",       ShortName = "YO", Color = "#F1C40F" },
+            new { Id = Id.Group4, Name = "Donkey Kong Group", ShortName = "DK", Color = "#E67E22" },
+            new { Id = Id.Group5, Name = "Peach Group",       ShortName = "PE", Color = "#E91E8C" },
+            new { Id = Id.Group6, Name = "Rosalina Group",    ShortName = "RO", Color = "#3498DB" },
+        };
 
-        // Placeholder groups — update Name, ShortName, Color, CabinDisplayName
-        // once cabin groupings are confirmed with Katelyn/Vicki
-        db.Groups.AddRange(
-            new Group { GroupId = Id.Group1, EventId = Id.EventCcn2026, Name = "Group 1", ShortName = "G1", Color = "#E74C3C" },
-            new Group { GroupId = Id.Group2, EventId = Id.EventCcn2026, Name = "Group 2", ShortName = "G2", Color = "#3498DB" },
-            new Group { GroupId = Id.Group3, EventId = Id.EventCcn2026, Name = "Group 3", ShortName = "G3", Color = "#2ECC71" },
-            new Group { GroupId = Id.Group4, EventId = Id.EventCcn2026, Name = "Group 4", ShortName = "G4", Color = "#F39C12" },
-            new Group { GroupId = Id.Group5, EventId = Id.EventCcn2026, Name = "Group 5", ShortName = "G5", Color = "#9B59B6" },
-            new Group { GroupId = Id.Group6, EventId = Id.EventCcn2026, Name = "Group 6", ShortName = "G6", Color = "#1ABC9C" }
-        );
+        foreach (var def in defs)
+        {
+            var existing = await db.Groups.FindAsync(def.Id);
+            if (existing is null)
+            {
+                db.Groups.Add(new Group
+                {
+                    GroupId   = def.Id,
+                    EventId   = Id.EventCcn2026,
+                    Name      = def.Name,
+                    ShortName = def.ShortName,
+                    Color     = def.Color,
+                });
+            }
+            else
+            {
+                existing.Name      = def.Name;
+                existing.ShortName = def.ShortName;
+                existing.Color     = def.Color;
+            }
+        }
         await db.SaveChangesAsync();
-        logger.LogInformation("Seeded 6 placeholder groups for CCN 2026.");
+        logger.LogInformation("Seeded/updated CCN 2026 groups.");
     }
 
     private async Task SeedAdminUserAsync(AppDbContext db)
